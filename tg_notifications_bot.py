@@ -35,26 +35,26 @@ def main():
                 params=payload
             )
             response.raise_for_status()
-            if response.json()["status"] == "timeout":
-                timestamp = response.json()["timestamp_to_request"]
-            elif response.json()["status"]== "found":
-                timestamp = response.json()["last_attempt_timestamp"]
+            response_dict = response.json()
+            if response_dict["status"] == "timeout":
+                timestamp = response_dict["timestamp_to_request"]
+            elif response_dict["status"]== "found":
+                timestamp = response_dict["last_attempt_timestamp"]
                 chat_id = os.getenv("TG_CHAT_ID")
-                last_new_attempt = response.json()['new_attempts'][0]
+                last_new_attempt = response_dict['new_attempts'][0]
                 work_name = last_new_attempt['lesson_title']
                 work_url = last_new_attempt['lesson_url']
+                if last_new_attempt["is_negative"]:
+                    final_message = "К сожалению, в работе нашлись ошибки."
+                elif last_new_attempt["is_negative"]:
+                    final_message = "Преподавателю все понравилось,"
+                    + "можно приступать к следующему уроку!"
                 bot.send_message(
                     chat_id, 
                     text="Преподаватель проверил работу\n"+
-                    f"'{work_name}'\ndvmn.org{work_url}"
+                    f"'{work_name}'\ndvmn.org{work_url}" +
+                    f"\n{final_message}"
                     )
-                if last_new_attempt["is_negative"]:
-                    text = "К сожалению, в работе нашлись ошибки"
-                    bot.send_message(chat_id, text=text)
-                elif last_new_attempt["is_negative"]:
-                    text = "Преподавателю все понравилось,"
-                    + "можно приступать к следующему уроку!"
-                    bot.send_message(chat_id, text=text)
         except (
             requests.exceptions.ReadTimeout,
             requests.exceptions.ConnectionError
