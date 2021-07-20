@@ -1,4 +1,5 @@
 import requests
+import logging
 import time
 import telegram
 from dotenv import load_dotenv
@@ -6,6 +7,8 @@ import os
 
 
 def main():
+    logging.warning("БОТ ЗАПУЩЕН!")
+
     load_dotenv()
 
     devman_token = os.getenv("DEVMAN_TOKEN")
